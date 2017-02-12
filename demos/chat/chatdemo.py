@@ -72,12 +72,12 @@ class MessageBuffer(object):
 global_message_buffer = MessageBuffer()
 
 
-class MainHandler(tornado.web.RequestHandler):
+class MainHandler(tornado.web.RequestHandler, route=r"/"):
     def get(self):
         self.render("index.html", messages=global_message_buffer.cache)
 
 
-class MessageNewHandler(tornado.web.RequestHandler):
+class MessageNewHandler(tornado.web.RequestHandler, route=r"/a/message/new"):
     def post(self):
         message = {
             "id": str(uuid.uuid4()),
@@ -94,7 +94,7 @@ class MessageNewHandler(tornado.web.RequestHandler):
         global_message_buffer.new_messages([message])
 
 
-class MessageUpdatesHandler(tornado.web.RequestHandler):
+class MessageUpdatesHandler(tornado.web.RequestHandler, route=r"/a/message/updates"):
     @gen.coroutine
     def post(self):
         cursor = self.get_argument("cursor", None)
@@ -113,11 +113,7 @@ class MessageUpdatesHandler(tornado.web.RequestHandler):
 def main():
     parse_command_line()
     app = tornado.web.Application(
-        [
-            (r"/", MainHandler),
-            (r"/a/message/new", MessageNewHandler),
-            (r"/a/message/updates", MessageUpdatesHandler),
-            ],
+        [],
         cookie_secret="__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
